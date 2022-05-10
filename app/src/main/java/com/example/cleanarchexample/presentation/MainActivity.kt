@@ -4,7 +4,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.cleanarchexample.R
-import com.example.cleanarchexample.data.UserRepositoryImpl
+import com.example.cleanarchexample.data.repository.UserRepositoryImpl
+import com.example.cleanarchexample.data.storage.sharedpref.SharedPrefUserStorage
 import com.example.cleanarchexample.databinding.ActivityMainBinding
 import com.example.cleanarchexample.domain.models.SaveUserNameParam
 import com.example.cleanarchexample.domain.usecase.GetUserNameUseCase
@@ -17,7 +18,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     // LazyThreadSafetyMode.NONE - отключение многопоточности
     // by lazy - инициализация произойдёт только в тот момент, когда потребуется данный объект
     private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
-        UserRepositoryImpl(applicationContext)
+        UserRepositoryImpl(SharedPrefUserStorage(applicationContext))
     }
     private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
         GetUserNameUseCase(userRepository)

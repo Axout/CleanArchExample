@@ -5,6 +5,7 @@ import com.example.cleanarchexample.domain.repository.UserRepository
 
 class SaveUserNameUseCase(private val userRepository: UserRepository) {
 
+    // Use Case на вход должен принимать ОДИН параметр (в примере - param: SaveUserNameParam)
     fun execute(param: SaveUserNameParam): Boolean {
         // Пример реализации логики в domain слое.
         val oldUserName = userRepository.getName()
