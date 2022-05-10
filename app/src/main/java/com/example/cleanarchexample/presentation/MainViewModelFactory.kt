@@ -4,9 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.cleanarchexample.domain.usecase.GetUserNameUseCase
 import com.example.cleanarchexample.domain.usecase.SaveUserNameUseCase
+import javax.inject.Inject
 
 
-class MainViewModelFactory(
+class MainViewModelFactory @Inject constructor(
     val getUserNameUseCase: GetUserNameUseCase,
     val saveUserNameUseCase: SaveUserNameUseCase
 ) : ViewModelProvider.Factory {
