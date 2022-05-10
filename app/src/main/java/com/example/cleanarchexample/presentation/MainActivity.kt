@@ -13,9 +13,18 @@ import com.example.cleanarchexample.domain.usecase.SaveUserNameUseCase
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val binding by viewBinding(ActivityMainBinding::bind)
-    private val userRepository = UserRepositoryImpl()
-    private val getUserNameUseCase = GetUserNameUseCase(userRepository)
-    private val saveUserNameUseCase = SaveUserNameUseCase(userRepository)
+
+    // LazyThreadSafetyMode.NONE - отключение многопоточности
+    // by lazy - инициализация произойдёт только в тот момент, когда потребуется данный объект
+    private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
+        UserRepositoryImpl(applicationContext)
+    }
+    private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
+        GetUserNameUseCase(userRepository)
+    }
+    private val saveUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
+        SaveUserNameUseCase(userRepository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,8 +34,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun ActivityMainBinding.initUi() {
+
         btSaveData.setOnClickListener {
-            val text = etData.toString()
+            val text = etData.text.toString()
             val params = SaveUserNameParam(text)
             val result: Boolean = saveUserNameUseCase.execute(params)
             tvData.text = "Save result = $result"
