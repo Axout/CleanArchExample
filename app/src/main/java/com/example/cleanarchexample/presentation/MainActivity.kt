@@ -2,50 +2,43 @@ package com.example.cleanarchexample.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.lifecycle.ViewModelProvider
 import by.kirich1409.viewbindingdelegate.viewBinding
 import com.example.cleanarchexample.R
-import com.example.cleanarchexample.data.repository.UserRepositoryImpl
-import com.example.cleanarchexample.data.storage.sharedpref.SharedPrefUserStorage
 import com.example.cleanarchexample.databinding.ActivityMainBinding
-import com.example.cleanarchexample.domain.models.SaveUserNameParam
-import com.example.cleanarchexample.domain.usecase.GetUserNameUseCase
-import com.example.cleanarchexample.domain.usecase.SaveUserNameUseCase
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private val binding by viewBinding(ActivityMainBinding::bind)
-
-    // LazyThreadSafetyMode.NONE - отключение многопоточности
-    // by lazy - инициализация произойдёт только в тот момент, когда потребуется данный объект
-    private val userRepository by lazy(LazyThreadSafetyMode.NONE) {
-        UserRepositoryImpl(SharedPrefUserStorage(applicationContext))
-    }
-    private val getUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        GetUserNameUseCase(userRepository)
-    }
-    private val saveUserNameUseCase by lazy(LazyThreadSafetyMode.NONE) {
-        SaveUserNameUseCase(userRepository)
-    }
+    private lateinit var viewModel: MainViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding.initUi()
+        initUi()
 
     }
 
-    private fun ActivityMainBinding.initUi() {
+    private fun initUi() {
 
-        btSaveData.setOnClickListener {
-            val text = etData.text.toString()
-            val params = SaveUserNameParam(text)
-            val result: Boolean = saveUserNameUseCase.execute(params)
-            tvData.text = "Save result = $result"
+        viewModel = ViewModelProvider(this, MainViewModelFactory(this))[MainViewModel::class.java]
+
+        // this - здесь определяет в каком методе осуществлять отписку
+        // если подписка в onCreate(), то отписка в onDestroy()
+        // если подписка в onResume(), то отписка в onPause()
+        viewModel.resultLiveData.observe(this) {
+            binding.tvData.text = it
         }
 
-        btGetData.setOnClickListener {
-            val userName = getUserNameUseCase.execute()
-            tvData.text = "${userName.firstName} ${userName.lastName}"
+        with(binding) {
+            btSaveData.setOnClickListener {
+                val text = etData.text.toString()
+                viewModel.save(text)
+            }
+
+            btGetData.setOnClickListener {
+                viewModel.load()
+            }
         }
     }
 }
